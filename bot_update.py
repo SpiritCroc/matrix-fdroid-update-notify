@@ -9,7 +9,8 @@ import yaml
 from markdown import markdown
 from nio import AsyncClient
 
-verbose=False
+verbose = False
+require_user_confirmation = False
 
 # Directory containing this file
 this_dir = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
@@ -129,7 +130,10 @@ async def bot_update():
             await notify_update(repo_id, pkg, msg)
 
 async def post_notify(room, msg):
-    input(f"Notify {room}: {msg}\nPress enter to confirm")
+    if require_user_confirmation:
+        input(f"Notify {room}: {msg}\nPress enter to confirm")
+    else:
+        print(f"Notify {room}: {msg}")
     content = {
         "msgtype": "m.notice",
         "format": "org.matrix.custom.html",

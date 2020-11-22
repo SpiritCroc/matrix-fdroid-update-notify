@@ -107,7 +107,7 @@ async def bot_update():
             try:
                 versionName = app["suggestedVersionName"]
             except:
-                versionName = get_version_name(pkg, versionCode)
+                versionName = get_version_name(repo_index, pkg, versionCode)
             if versionName == None:
                 print(f"WARN: No version name found for {pkg}, {versionCode}")
                 continue

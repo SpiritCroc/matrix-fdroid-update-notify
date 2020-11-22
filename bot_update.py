@@ -132,8 +132,10 @@ async def bot_update():
 async def post_notify(room, msg):
     if require_user_confirmation:
         input(f"Notify {room}: {msg}\nPress enter to confirm")
-    else:
+    elif verbose:
         print(f"Notify {room}: {msg}")
+    else:
+        print(f"Notify {room}")
     content = {
         "msgtype": "m.notice",
         "format": "org.matrix.custom.html",

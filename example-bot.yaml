@@ -1,0 +1,22 @@
+fdroid:
+  repo1:
+    repo: '~/fdroiddata1/repo'
+    repo_name: "My F-Droid repo 1"
+    repo_url: ''
+  repo2:
+    repo: '~/fdroiddata2/repo'
+    repo_name: "My F-Droid repo 2"
+    repo_url: 'https://example.com/fdroid/repo'
+
+matrix:
+  homeserver: "https://matrix.example.com"
+  mx_id: "@fdroid:example.com"
+  device_id: "CHWYHZJIID"
+  password: 'mysecretbotpassword'
+
+  rooms:
+    repo1:
+      all: ["!mytestroom:example.org"]
+    repo2:
+      com.example.myapp: ["!myappspecificroom:example.org"]
+      all: ["!myfdroidupdateroom:example.org", "!mytestroom:example.org"]

@@ -1,4 +1,5 @@
 fdroid:
+  # repo1, repo2 can be arbitrary names, but must be the same in the matrix/rooms section
   repo1:
     repo: '~/fdroiddata1/repo'
     repo_name: "My F-Droid repo 1"
@@ -16,7 +17,14 @@ matrix:
 
   rooms:
     repo1:
+      # "all" is a "special" package id, which matches all packages
       all: ["!mytestroom:example.org"]
     repo2:
       com.example.myapp: ["!myappspecificroom:example.org"]
       all: ["!myfdroidupdateroom:example.org", "!mytestroom:example.org"]
+
+# Custom app-specific update messages
+update_message:
+  repo1:
+    de.spiritcroc.riotx:
+      handler: scripts/de.spiritcroc.riotx.sh

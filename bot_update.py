@@ -4,6 +4,7 @@ import asyncio
 import inspect
 import json
 import os
+import subprocess
 import yaml
 
 from markdown import markdown
@@ -125,6 +126,22 @@ async def bot_update():
             msg = f"{repoString} updated {name} to version {versionString}."
             if changes != None:
                 msg += f"\n\nChanges:\n\n{changes}"
+
+            if repo_id in config["update_message"]:
+                if pkg in config["update_message"][repo_id]:
+                    update_msg_config = config["update_message"][repo_id][pkg]
+                    if "handler" in update_msg_config:
+                        message_handler = update_msg_config["handler"]
+                        env = os.environ.copy()
+                        env["packageName"] = pkg
+                        env["appName"] = name
+                        env["versionString"] = versionString
+                        env["repo_name"] = repo_name
+                        env["repo_url"] = repo_url
+                        env["repoString"] = repoString
+                        env["msg"] = msg
+                        env["changes"] = changes
+                        msg = subprocess.check_output(message_handler, cwd=this_dir, env=env).decode('utf-8')
 
             store_last_notified_version(repo_id, pkg, versionCode)
             await notify_update(repo_id, pkg, msg)

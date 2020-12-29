@@ -23,8 +23,16 @@ matrix:
       com.example.myapp: ["!myappspecificroom:example.org"]
       all: ["!myfdroidupdateroom:example.org", "!mytestroom:example.org"]
 
-# Custom app-specific update messages
+# Custom app-specific update messages.
+# Following environment variables are available:
+# packageName, appName, versionString, repo_name, repo_url, repoString, msg, changes
+# The handler should write the new msg to stdout.
+# Updates can be ignored by outputting nothing.
 update_message:
   repo1:
     de.spiritcroc.riotx:
       handler: scripts/de.spiritcroc.riotx.sh
+  repo2:
+    # Special handler for all apps in that repo.
+    all:
+      handler: scripts/repo2.sh

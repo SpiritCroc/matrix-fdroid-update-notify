@@ -128,23 +128,28 @@ async def bot_update():
                 msg += f"\n\nChanges:\n\n{changes}"
 
             if repo_id in config["update_message"]:
-                if pkg in config["update_message"][repo_id]:
-                    update_msg_config = config["update_message"][repo_id][pkg]
-                    if "handler" in update_msg_config:
-                        message_handler = update_msg_config["handler"]
-                        env = os.environ.copy()
-                        env["packageName"] = pkg
-                        env["appName"] = name
-                        env["versionString"] = versionString
-                        env["repo_name"] = repo_name
-                        env["repo_url"] = repo_url
-                        env["repoString"] = repoString
-                        env["msg"] = msg
-                        env["changes"] = changes
-                        msg = subprocess.check_output(message_handler, cwd=this_dir, env=env).decode('utf-8')
+                for notify_id in [pkg, "all"]:
+                    if notify_id in config["update_message"][repo_id]:
+                        update_msg_config = config["update_message"][repo_id][notify_id]
+                        if "handler" in update_msg_config:
+                            message_handler = update_msg_config["handler"]
+                            env = os.environ.copy()
+                            env["packageName"] = pkg
+                            env["appName"] = name
+                            env["versionString"] = versionString
+                            env["repo_name"] = repo_name
+                            env["repo_url"] = repo_url
+                            env["repoString"] = repoString
+                            env["msg"] = msg
+                            env["changes"] = changes
+                            msg = subprocess.check_output(message_handler, cwd=this_dir, env=env).decode('utf-8')
 
             store_last_notified_version(repo_id, pkg, versionCode)
-            await notify_update(repo_id, pkg, msg)
+            if len(msg) > 1:
+                await notify_update(repo_id, pkg, msg)
+            else:
+                # Discard messages
+                print(f"Don't notify for {repo_id} / {pkg} / {versionCode}")
 
 async def post_notify(room, msg):
     if require_user_confirmation:

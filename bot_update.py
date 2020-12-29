@@ -113,11 +113,17 @@ async def bot_update():
                 print(f"WARN: No version name found for {pkg}, {versionCode}")
                 continue
             try:
-                changes = app["localized"]["en-US"]["whatsNew"]
-                if changes[-1] == '\n':
-                    changes = changes[:-1]
+                try:
+                    with open(fp(repo_id, f"../build/{pkg}/fastlane/metadata/android/en-US/changelogs/{versionCode}.txt"), "r") as fin:
+                        changes = fin.read()
+                    print(f"{repo_id}/{pkg}: found fastlane changelog")
+                except:
+                    changes = app["localized"]["en-US"]["whatsNew"]
+                    print(f"{repo_id}/{pkg}: use fdroid changelog")
             except:
                 changes = None
+            if changes != None and changes[-1] == '\n':
+                changes = changes[:-1]
             versionString = f"{versionName}" if versionName != None else f"{versionCode}"
             repo_name = config["fdroid"][repo_id]["repo_name"]
             repo_url = config["fdroid"][repo_id]["repo_url"]

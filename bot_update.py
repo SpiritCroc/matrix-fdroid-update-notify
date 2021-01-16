@@ -92,8 +92,12 @@ async def bot_update():
             repo_index = json.load(fin)
 
         for app in repo_index["apps"]:
+            #print(json.dumps(app, indent=4))
             pkg = app["packageName"]
-            name = app["name"]
+            try:
+                name = app["name"]
+            except KeyError:
+                name = app["localized"]["en-US"]["name"]
             versionCode = int(app["suggestedVersionCode"])
 
             last_notified = last_notified_version(repo_id, pkg)

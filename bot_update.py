@@ -151,7 +151,10 @@ async def bot_update():
                             env["repo_url"] = repo_url
                             env["repoString"] = repoString
                             env["msg"] = msg
-                            env["changes"] = changes
+                            if changes != None:
+                                env["changes"] = changes
+                            elif "changes" in env:
+                                del env["changes"]
                             msg = subprocess.check_output(message_handler, cwd=this_dir, env=env).decode('utf-8')
 
             store_last_notified_version(repo_id, pkg, versionCode)

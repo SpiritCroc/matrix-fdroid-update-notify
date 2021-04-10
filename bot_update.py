@@ -172,7 +172,8 @@ async def post_notify(room, msg):
     else:
         print(f"Notify {room}")
     content = {
-        "msgtype": "m.notice",
+        #"msgtype": "m.notice",
+        "msgtype": "m.text",
         "format": "org.matrix.custom.html",
         "body": msg,
         "formatted_body": markdown(msg)

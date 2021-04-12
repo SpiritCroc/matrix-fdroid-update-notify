@@ -164,7 +164,7 @@ async def bot_update():
                 # Discard messages
                 print(f"Don't notify for {repo_id} / {pkg} / {versionCode}")
 
-async def post_notify(room, msg):
+async def post_notify(room, msg, notice):
     if require_user_confirmation:
         input(f"Notify {room}: {msg}\nPress enter to confirm")
     elif verbose:
@@ -172,8 +172,7 @@ async def post_notify(room, msg):
     else:
         print(f"Notify {room}")
     content = {
-        #"msgtype": "m.notice",
-        "msgtype": "m.text",
+        "msgtype": "m.notice" if notice else "m.text",
         "format": "org.matrix.custom.html",
         "body": msg,
         "formatted_body": markdown(msg)
@@ -181,12 +180,13 @@ async def post_notify(room, msg):
     await client.room_send(room, "m.room.message", content, ignore_unverified_devices=True)
 
 async def notify_update(repo_id, pkg, msg):
-    # "all" is a special "package" name to notify about all packages
-    repo_rooms = config["matrix"]["rooms"][repo_id]
-    for notify_id in ["all", pkg]:
-        if notify_id in repo_rooms:
-            for room in repo_rooms[notify_id]:
-                await post_notify(room, msg)
+    for notice_enabled, notice_id in [(True, "notice"), (False, "text")]:
+        repo_rooms = config["matrix"]["rooms"][notice_id][repo_id]
+        # "all" is a special "package" name to notify about all packages
+        for notify_id in ["all", pkg]:
+            if notify_id in repo_rooms:
+                for room in repo_rooms[notify_id]:
+                    await post_notify(room, msg, notice_enabled)
 
 async def main():
     await bot_init()

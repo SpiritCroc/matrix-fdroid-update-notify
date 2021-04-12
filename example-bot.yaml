@@ -17,11 +17,16 @@ matrix:
 
   rooms:
     repo1:
-      # "all" is a "special" package id, which matches all packages
-      all: ["!mytestroom:example.org"]
+      # "text:" for "loud" messages that can cause notifications, "notice:" for silent messages
+      text:
+        # "all" is a "special" package id, which matches all packages
+        all: ["!mytestroom:example.org"]
+      notice:
+        com.example.myapp: ["!myappspecificroom:example.org"]
     repo2:
-      com.example.myapp: ["!myappspecificroom:example.org"]
-      all: ["!myfdroidupdateroom:example.org", "!mytestroom:example.org"]
+      notice:
+        com.example.myapp: ["!myappspecificroom:example.org"]
+        all: ["!myfdroidupdateroom:example.org", "!mytestroom:example.org"]
 
 # Custom app-specific update messages.
 # Following environment variables are available:

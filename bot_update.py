@@ -181,7 +181,10 @@ async def post_notify(room, msg, notice):
 
 async def notify_update(repo_id, pkg, msg):
     for notice_enabled, notice_id in [(True, "notice"), (False, "text")]:
-        repo_rooms = config["matrix"]["rooms"][notice_id][repo_id]
+        repo_rooms = config["matrix"]["rooms"][repo_id]
+        if not notice_id in repo_rooms:
+            continue
+        repo_rooms = repo_rooms[notice_id]
         # "all" is a special "package" name to notify about all packages
         for notify_id in ["all", pkg]:
             if notify_id in repo_rooms:

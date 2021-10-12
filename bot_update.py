@@ -99,6 +99,9 @@ async def bot_update():
             except KeyError:
                 name = app["localized"]["en-US"]["name"]
             versionCode = int(app["suggestedVersionCode"])
+            if not os.path.exists(fp(repo_id, f"../repo/{pkg}_{versionCode}.apk")):
+                print(f"ERROR: Suggested version {versionCode} does not exist for {pkg}, skipping this app")
+                continue
 
             last_notified = last_notified_version(repo_id, pkg)
             if last_notified == None:

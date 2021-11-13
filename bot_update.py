@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import asyncio
 import inspect
 import json
@@ -10,8 +11,18 @@ import yaml
 from markdown import markdown
 from nio import AsyncClient
 
-verbose = False
-require_user_confirmation = False
+parser = argparse.ArgumentParser(description="Send matrix notifications for your F-Droid repo updates")
+parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+parser.add_argument("-c", "--require-confirmation", action="store_true", help="Ask for confirmation before sending updates")
+parser.add_argument("--resend", action="store_true", help="Resend even if no version has been updated")
+parser.add_argument("-r", "--redirect-room", metavar="roomId", type=str, help="Redirect all updates to a specific room. Will not remember the current updates, i.e. later invocations will notify again for updates.")
+args = parser.parse_args()
+
+verbose = args.verbose
+require_user_confirmation = args.require_confirmation
+should_resend = args.resend
+redirect_room = args.redirect_room
+should_store = redirect_room == None
 
 # Directory containing this file
 this_dir = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
@@ -67,6 +78,8 @@ def last_notified_version(repo_id, pkg):
         return None
 
 def store_last_notified_version(repo_id, pkg, versionCode):
+    if not should_store:
+        return
     store_dir = os.path.join(pkg_versions_dir, repo_id)
     if not os.path.exists(store_dir):
         os.makedirs(store_dir)
@@ -104,11 +117,11 @@ async def bot_update():
                 continue
 
             last_notified = last_notified_version(repo_id, pkg)
-            if last_notified == None:
+            if last_notified == None and not should_resend:
                 print(f"{repo_id}/{pkg}: New app, remember version code {versionCode}")
                 store_last_notified_version(repo_id, pkg, versionCode)
                 continue
-            if last_notified >= versionCode:
+            if last_notified >= versionCode and not should_resend:
                 if verbose:
                     print(f"{repo_id}/{pkg} does not require any notification")
                 continue
@@ -168,6 +181,8 @@ async def bot_update():
                 print(f"Don't notify for {repo_id} / {pkg} / {versionCode}")
 
 async def post_notify(room, msg, notice):
+    if redirect_room != None:
+        room = redirect_room
     if require_user_confirmation:
         input(f"Notify {room}: {msg}\nPress enter to confirm")
     elif verbose:

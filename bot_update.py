@@ -153,6 +153,8 @@ async def bot_update():
             if changes != None:
                 msg += f"\n\nChanges:\n\n{changes}"
 
+            formatted_msg = markdown(msg)
+
             if repo_id in config["update_message"]:
                 for notify_id in [pkg, "all"]:
                     if notify_id in config["update_message"][repo_id]:
@@ -167,20 +169,33 @@ async def bot_update():
                             env["repo_url"] = repo_url
                             env["repoString"] = repoString
                             env["msg"] = msg
+                            env["formatted_msg"] = ""
                             if changes != None:
                                 env["changes"] = changes
                             elif "changes" in env:
                                 del env["changes"]
+                            # Run once without formatted_msg empty to generate unformatted message
                             msg = subprocess.check_output(message_handler, cwd=this_dir, env=env).decode('utf-8')
+                            formatted_msg = markdown(msg)
+
+                            # Rerun for formatted msg. Scripts that want to modify the formatted message further
+                            # should check if formatted_msg is empty in order to tell apart executions for formatted
+                            # and plain messages.
+                            env["formatted_msg"] = formatted_msg
+                            formatted_msg = subprocess.check_output(message_handler, cwd=this_dir, env=env).decode('utf-8')
+                            # If formatted_msg = msg, then the script does likely not check for formatted_msg,
+                            # and just always handle msg. In this case, we want to re-format the message.
+                            if formatted_msg == msg:
+                                formatted_msg = markdown(msg)
 
             store_last_notified_version(repo_id, pkg, versionCode)
             if len(msg) > 1:
-                await notify_update(repo_id, pkg, msg)
+                await notify_update(repo_id, pkg, msg, formatted_msg)
             else:
                 # Discard messages
                 print(f"Don't notify for {repo_id} / {pkg} / {versionCode}")
 
-async def post_notify(room, msg, notice):
+async def post_notify(room, msg, formatted_msg, notice):
     if redirect_room != None:
         room = redirect_room
     if require_user_confirmation:
@@ -193,11 +208,11 @@ async def post_notify(room, msg, notice):
         "msgtype": "m.notice" if notice else "m.text",
         "format": "org.matrix.custom.html",
         "body": msg,
-        "formatted_body": markdown(msg)
+        "formatted_body": formatted_msg
     }
     await client.room_send(room, "m.room.message", content, ignore_unverified_devices=True)
 
-async def notify_update(repo_id, pkg, msg):
+async def notify_update(repo_id, pkg, msg, formatted_msg):
     for notice_enabled, notice_id in [(True, "notice"), (False, "text")]:
         repo_rooms = config["matrix"]["rooms"][repo_id]
         if not notice_id in repo_rooms:
@@ -207,7 +222,7 @@ async def notify_update(repo_id, pkg, msg):
         for notify_id in ["all", pkg]:
             if notify_id in repo_rooms:
                 for room in repo_rooms[notify_id]:
-                    await post_notify(room, msg, notice_enabled)
+                    await post_notify(room, msg, formatted_msg, notice_enabled)
 
 async def main():
     await bot_init()

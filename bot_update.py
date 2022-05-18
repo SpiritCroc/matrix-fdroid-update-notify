@@ -149,6 +149,22 @@ async def bot_update():
             repo_url = config["fdroid"][repo_id]["repo_url"]
             repoString = repo_name if repo_url == '' else f"[{repo_name}]({repo_url})"
 
+            try:
+                source_url = app["sourceCode"]
+                if source_url.startswith("https://github.com") and source_url.count("/") == 4:
+                    # Try to get the actual tag / commit that this was built against from metadata.
+                    with open(fp(repo_id, os.path.join("..", "metadata", f"{pkg}.yml")), "r") as fin:
+                        metadata = yaml.full_load(fin)
+                        builds = metadata["Builds"]
+                        for build in builds:
+                            print(f"{build['versionCode']} == {versionCode}")
+                            if build['versionCode'] == versionCode:
+                                revision = build["commit"]
+                                versionString = f"[{versionString}]({source_url}/commits/{revision})"
+                                break
+            except Exception as e:
+                print(f"Can not parse metadata for {pkg} to find git revision")
+
             msg = f"{repoString} updated {name} to version {versionString}."
             if changes != None:
                 msg += f"\n\nChanges:\n\n{changes}"
@@ -230,4 +246,4 @@ async def main():
     await bot_finish()
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(main())
+    asyncio.new_event_loop().run_until_complete(main())

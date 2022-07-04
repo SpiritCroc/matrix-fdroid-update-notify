@@ -16,12 +16,14 @@ parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output
 parser.add_argument("-c", "--require-confirmation", action="store_true", help="Ask for confirmation before sending updates")
 parser.add_argument("--resend", action="store_true", help="Resend even if no version has been updated")
 parser.add_argument("-r", "--redirect-room", metavar="roomId", type=str, help="Redirect all updates to a specific room. Will not remember the current updates, i.e. later invocations will notify again for updates.")
+parser.add_argument("-p", "--package", metavar="packageId", type=str, help="Only check updates for a specific app with the given package ID.")
 args = parser.parse_args()
 
 verbose = args.verbose
 require_user_confirmation = args.require_confirmation
 should_resend = args.resend
 redirect_room = args.redirect_room
+restrict_package = args.package
 should_store = redirect_room == None
 
 # Directory containing this file
@@ -107,6 +109,8 @@ async def bot_update():
         for app in repo_index["apps"]:
             #print(json.dumps(app, indent=4))
             pkg = app["packageName"]
+            if restrict_package not in [pkg, None]:
+                continue
             try:
                 name = app["name"]
             except KeyError:

@@ -11,7 +11,7 @@ if [ "$packageName" = "de.spiritcroc.riotx.testing.fcm" ]; then
         "$mydir/de.spiritcroc.riotx.sh" | sed "s|$appNamePattern|SchildiChat.Beta|g" \
             | sed "s|^Changes:$|Auto-generated changelog:|"
     else
-        spoilered="$(echo "$formatted_msg" | sed 's|<p>\(.* updated SchildiChat.Beta to version '"$versionString"'\.\)</p>|<details><summary>\1</summary>|')"
+        spoilered="$(echo "$formatted_msg" | sed 's|<p>\(.* updated SchildiChat.Beta to version <a .*'"$versionString"'</a>\.\)</p>|<details><summary>\1</summary>|')"
         if [ "$formatted_msg" != "$spoilered" ]; then
             # sed rule worked. Else, fallback to not inserting spoiler
             echo "$spoilered</details>"

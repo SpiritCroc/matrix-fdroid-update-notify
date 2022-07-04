@@ -149,6 +149,7 @@ async def bot_update():
             if changes != None and changes[-1] == '\n':
                 changes = changes[:-1]
             versionString = f"{versionName}" if versionName != None else f"{versionCode}"
+            unformattedVersionString = versionString
             repo_name = config["fdroid"][repo_id]["repo_name"]
             repo_url = config["fdroid"][repo_id]["repo_url"]
             repoString = repo_name if repo_url == '' else f"[{repo_name}]({repo_url})"
@@ -184,7 +185,7 @@ async def bot_update():
                             env = os.environ.copy()
                             env["packageName"] = pkg
                             env["appName"] = name
-                            env["versionString"] = versionString
+                            env["versionString"] = unformattedVersionString
                             env["repo_name"] = repo_name
                             env["repo_url"] = repo_url
                             env["repoString"] = repoString

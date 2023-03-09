@@ -172,6 +172,8 @@ async def bot_update():
 
             msg = f"{repoString} updated {name} to version {versionString}."
             if changes != None:
+                # Changelog should not generate an @room-ping
+                changes = changes.replace("@room", "@\u2060room")
                 msg += f"\n\nChanges:\n\n{changes}"
 
             formatted_msg = markdown(msg)

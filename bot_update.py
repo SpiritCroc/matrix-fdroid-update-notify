@@ -90,10 +90,16 @@ def store_last_notified_version(repo_id, pkg, versionCode):
 
 async def bot_init():
     global client
+    if verbose:
+        print("Login matrix bot...")
     m_config = config["matrix"]
     client = AsyncClient(m_config["homeserver"], m_config["mx_id"], m_config["device_id"])
     await client.login(m_config["password"])
+    if verbose:
+        print("Sync matrix bot...")
     await client.sync()
+    if verbose:
+        print("Matrix bot ready!")
 
 async def bot_finish():
     global client
@@ -103,8 +109,12 @@ async def bot_finish():
 async def bot_update():
     for repo_id in config["fdroid"]:
         repo_config = config["fdroid"][repo_id]
+        if verbose:
+            print("Loading repo index...")
         with open(fp(repo_id, "index-v1.json"), "r") as fin:
             repo_index = json.load(fin)
+        if verbose:
+            print("Repo index loaded!")
 
         for app in repo_index["apps"]:
             #print(json.dumps(app, indent=4))
@@ -184,6 +194,7 @@ async def bot_update():
                         update_msg_config = config["update_message"][repo_id][notify_id]
                         if "handler" in update_msg_config:
                             message_handler = update_msg_config["handler"]
+                            print(f"Run message handler {message_handler} for {pkg}")
                             env = os.environ.copy()
                             env["packageName"] = pkg
                             env["appName"] = name

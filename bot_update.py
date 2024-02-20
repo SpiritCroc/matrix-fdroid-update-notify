@@ -156,7 +156,7 @@ async def bot_update():
                     print(f"{repo_id}/{pkg}: use fdroid changelog")
             except:
                 changes = None
-            if changes != None and changes[-1] == '\n':
+            if changes and changes[-1] == '\n':
                 changes = changes[:-1]
             versionString = f"{versionName}" if versionName != None else f"{versionCode}"
             unformattedVersionString = versionString

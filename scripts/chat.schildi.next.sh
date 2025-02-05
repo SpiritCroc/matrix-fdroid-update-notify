@@ -12,7 +12,8 @@ else
     if [ "$scVersionBase" != "$elVersion" ] && [ ! -z "$elVersion" ] && [ ! -z "$scVersionBase" ]; then
         elVersion=`echo "$elVersion" | sed 's|_|.|g'`
         prettyVersion="$scVersionBase"
-        elVersionAdd=" (EX: $elVersion)"
+        #elVersionAdd=" (EX: $elVersion)"
+        elVersionAdd=""
     else
         prettyVersion="$versionString"
         elVersionAdd=""

@@ -189,7 +189,7 @@ async def bot_update():
             formatted_msg = markdown(msg)
 
             if repo_id in config["update_message"]:
-                for notify_id in [pkg, "all"]:
+                for notify_id in ["all", pkg]:
                     if notify_id in config["update_message"][repo_id]:
                         update_msg_config = config["update_message"][repo_id][notify_id]
                         if "handler" in update_msg_config:
